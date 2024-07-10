@@ -8,7 +8,7 @@ CREATE TABLE offre (
     id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
     designation VARCHAR(100) UNIQUE,
     prix DECIMAL(10, 2) NOT NULL,
-    tauxTVA FLOAT
+    tauxTVA DECIMAL(4, 3)
 );
 INSERT into offre (designation, prix, tauxTVA)
 VALUE   ('Mon produit A',1500,0.055),
@@ -64,7 +64,7 @@ CREATE TABLE facture_offre (
     quantity INT NOT NULL,
     designation_F VARCHAR(100),
     prix_F DECIMAL(10, 2) NOT NULL,
-    tauxTVA_F FLOAT,
+    tauxTVA_F DECIMAL(4, 3) ,
     FOREIGN KEY (facture_id) REFERENCES facture(id),
     FOREIGN KEY (offre_id) REFERENCES offre(id)
 );

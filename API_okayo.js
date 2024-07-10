@@ -15,6 +15,7 @@ const db = mysql.createPool(dbConfig);
 
 // Add a new facture
 app.post('/factures', async (req, res) => {
+  console.log('Received request to add new facture');
   const { dateFacturation, dateEcheance, client_id } = req.body;
   const query = `INSERT INTO facture (dateFacturation, dateEcheance, client_id) VALUES (?,?,?)`;
   try {
@@ -26,31 +27,40 @@ app.post('/factures', async (req, res) => {
   }
 });
 
+// Get access to the information of a facture
+app.get('/factures/:id/details', async (req, res) => {
+    const factureId = req.params.id;
+    const queryTotals = 'SELECT * FROM facture_totals WHERE facture_id = ?';
+    const queryTVADetails = 'SELECT * FROM facture_tva_details WHERE facture_id = ?';
+    const queryFactureDetails = 'SELECT * FROM facture_offre WHERE facture_id = ?';
+
+    try {
+      const [totals] = await db.execute(queryTotals, [factureId]);
+      const [tvaDetails] = await db.execute(queryTVADetails, [factureId]);
+      const [factureDetails] = await db.execute(queryFactureDetails, [factureId]);
+      
+      if (totals.length === 0 || tvaDetails.length === 0) {
+        res.status(404).send({ message: 'Facture not found' });
+        return;
+      }
+  
+      res.status(200).send({ totals: totals[0], tvaDetails: tvaDetails, factureDetails: factureDetails });
+      console.log('Facture Totals:');
+      console.table(totals);
+    
+      console.log('\nTVA Details:');
+      console.table(tvaDetails);
+    
+      console.log('\nFacture Details:');
+      console.table(factureDetails);
+      
+    } catch (err) {
+      console.error(err);
+      res.status(500).send({ message: 'Error retrieving facture details' });
+    }
+  });
+  
 // Update the price, designation, or TVA rate of an offre
-/*app.patch('/offre/:id', async (req, res) => {
-  const id = req.params.id;
-  const { prix, designation, tauxTVA } = req.body;
-  const query = `UPDATE offre SET `;
-  let updates = [];
-  if (prix) {
-    updates.push(`prix =?`);
-  }
-  if (designation) {
-    updates.push(`designation =?`);
-  }
-  if (tauxTVA) {
-    updates.push(`tauxTVA =?`);
-  }
-  query += updates.join(', ');
-  query += ` WHERE id =?`;
-  try {
-    const result = await db.execute(query, [...updates.map(u => req.body[u]), id]);
-    res.status(200).send({ message: 'Offre updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send({ message: 'Error updating offre' });
-  }
-});*/
 
 // Start the server
 const port = 3000;
