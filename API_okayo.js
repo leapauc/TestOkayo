@@ -132,7 +132,39 @@ app.get('/factures/:id/details', async (req, res) => {
     }
   });
   
-// Update the price, designation, or TVA rate of an offre
+/******************************************************************************************************************/ 
+// Update an offer : modify the price, designation, or TVA rate of an offre
+app.put('/offers/:id', async (req, res) => {
+  const id = req.params.id;
+  const { designation, prix, tauxTVA } = req.body;
+
+  console.log(`Received update request for offer ID: ${id}`);
+  console.log(`Request body:`, req.body);
+
+  if (!designation || !prix || !tauxTVA) {
+    res.status(400).send({ message: 'Missing required fields' });
+    return;
+  }
+
+  try {
+    // Update the offer in the database
+    const [result] = await pool.execute(
+      `UPDATE offre SET designation = ?, prix = ?, tauxTVA = ? WHERE id = ?`,
+      [designation, prix, tauxTVA, id]
+    );
+
+    if (result.affectedRows === 0) {
+      console.log('Offer not found');
+      res.status(404).send({ message: 'Offer not found' });
+    } else {
+      console.log('Offer updated successfully');
+      res.send({ message: 'Offer updated successfully' });
+    }
+  } catch (error) {
+    console.error('Error updating offer:', error);
+    res.status(500).send({ message: 'Error updating offer' });
+  }
+});
 
 // Start the server
 const port = 3000;
