@@ -134,6 +134,7 @@ app.get('/factures/:id/details', async (req, res) => {
   
 /******************************************************************************************************************/ 
 // Update an offer : modify the price, designation, or TVA rate of an offre
+// NON FONCTIONNEL
 app.put('/offers/:id', async (req, res) => {
   const id = req.params.id;
   const { designation, prix, tauxTVA } = req.body;
