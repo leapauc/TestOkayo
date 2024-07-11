@@ -14,6 +14,7 @@ const dbConfig = {
 
 const db = mysql.createPool(dbConfig);
 
+/******************************************************************************************************************/
 // Add a new facture with offers
 app.post('/factures', async (req, res) => {
   console.log('Received request to add new facture with offers');
@@ -31,6 +32,8 @@ app.post('/factures', async (req, res) => {
       const offerQueries = offers.map((offer) => {
         const query = `INSERT INTO facture_offre (facture_id, offre_id, quantity, designation_F, prix_F, tauxTVA_F) VALUES (?,?,?,?,?,?)`;
         console.log(offer.offre_id);
+        
+        const queryDesignationPrixTVA = `SELECT designation, prix, tauxTVA FROM offre WHERE id=offer.offre_id`;
 
         return db.execute(query, [factureId, offer.offre_id, offer.quantity, offer.designation_F, offer.prix_F, offer.tauxTVA_F]);
       });
@@ -46,7 +49,7 @@ app.post('/factures', async (req, res) => {
     res.status(500).send({ message: 'Error adding facture' });
   }
 });
-
+/******************************************************************************************************************/
 // Add a client
 app.post('/clients', async (req, res) => {
   console.log('Received request to add new client');
@@ -70,7 +73,32 @@ app.post('/clients', async (req, res) => {
     res.status(500).send({ message: 'Error adding client' });
   }
 });
+/******************************************************************************************************************/
+// Add an offer
+app.post('/offres', async (req, res) => {
+  console.log('Received request to add new offer');
+  const { designation, prix, tauxTVA } = req.body;
 
+  try {
+    // Execute the INSERT query
+    const [result] = await db.execute(`INSERT INTO offre (designation, prix, tauxTVA) VALUES (?,?,?)`, [designation, prix, tauxTVA]);
+
+    // Get the insertId from the result
+    const offreId = result.insertId;
+    console.log(offreId);
+    if (offreId) {
+      res.status(201).send({ message: 'Offer added successfully' });
+    } else {
+      console.error('Offer ID is undefined');
+      res.status(500).send({ message: 'Error adding offer' });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ message: 'Error adding offer' });
+  }
+});
+
+/******************************************************************************************************************/ 
 // Get access to the information of a facture
 app.get('/factures/:id/details', async (req, res) => {
     const factureId = req.params.id;
