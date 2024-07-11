@@ -1,0 +1,21 @@
+{
+  "dateFacturation": "2023-03-14",
+  "dateEcheance": "2023-04-10",
+  "client_id": 2,
+  "offers": [
+    {
+      "offre_id": 3,
+      "quantity": 2,
+      "designation_F": "Mon produit C",
+      "prix_F": 60000.00,
+      "tauxTVA_F": 0.20
+    },
+    {
+      "offre_id": 4,
+      "quantity": 1,
+      "designation_F": "Mon produit D",
+      "prix_F": 3000.00,
+      "tauxTVA_F": 0.2
+    }
+  ]
+}
