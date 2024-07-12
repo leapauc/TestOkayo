@@ -134,7 +134,6 @@ app.get('/factures/:id/details', async (req, res) => {
   
 /******************************************************************************************************************/ 
 // Update an offer : modify the price, designation, or TVA rate of an offre
-// NON FONCTIONNEL
 app.put('/offers/:id', async (req, res) => {
   const id = req.params.id;
   const { designation, prix, tauxTVA } = req.body;
@@ -149,7 +148,7 @@ app.put('/offers/:id', async (req, res) => {
 
   try {
     // Update the offer in the database
-    const [result] = await pool.execute(
+    const [result] = await db.execute(
       `UPDATE offre SET designation = ?, prix = ?, tauxTVA = ? WHERE id = ?`,
       [designation, prix, tauxTVA, id]
     );
@@ -164,6 +163,72 @@ app.put('/offers/:id', async (req, res) => {
   } catch (error) {
     console.error('Error updating offer:', error);
     res.status(500).send({ message: 'Error updating offer' });
+  }
+});
+/******************************************************************************************************************/ 
+// Update a client : modify the nomEntreprise, rue, or codePostal and ville of an offre
+app.put('/clients/:id', async (req, res) => {
+  const id = req.params.id;
+  const { nomEntreprise, rue, codePostal, ville } = req.body;
+
+  console.log(`Received update request for client ID: ${id}`);
+  console.log(`Request body:`, req.body);
+
+  if (!nomEntreprise || !rue || !codePostal || !ville) {
+    res.status(400).send({ message: 'Missing required fields' });
+    return;
+  }
+
+  try {
+    // Update the client in the database
+    const [result] = await db.execute(
+      `UPDATE client SET nomEntreprise = ?, rue = ?, codePostal = ?, ville = ? WHERE id = ?`,
+      [nomEntreprise, rue, codePostal, ville, id]
+    );
+
+    if (result.affectedRows === 0) {
+      console.log('Client not found');
+      res.status(404).send({ message: 'Client not found' });
+    } else {
+      console.log('Client updated successfully');
+      res.send({ message: 'Client updated successfully' });
+    }
+  } catch (error) {
+    console.error('Error updating client:', error);
+    res.status(500).send({ message: 'Error updating client' });
+  }
+});
+/******************************************************************************************************************/ 
+// Update a fournisseur 
+app.put('/fournisseurs/:id', async (req, res) => {
+  const id = req.params.id;
+  const { rue, codePostal, ville, tel, siteWeb, domiciliation, nomProp, IBAN, BIC_SWIFT } = req.body;
+
+  console.log(`Received update request for fournisseur ID: ${id}`);
+  console.log(`Request body:`, req.body);
+
+  if (!rue || !codePostal || !ville || !tel || !siteWeb || !domiciliation || !nomProp || !IBAN || !BIC_SWIFT) {
+    res.status(400).send({ message: 'Missing required fields' });
+    return;
+  }
+
+  try {
+    // Update the fournisseur in the database
+    const [result] = await db.execute(
+      `UPDATE fournisseur SET rue = ?, codePostal = ?, ville = ?, tel = ?, siteWeb = ?, domiciliation = ?, nomProp = ?, IBAN = ?, BIC_SWIFT = ? WHERE id = ?`,
+      [rue, codePostal, ville, tel, siteWeb, domiciliation, nomProp, IBAN, BIC_SWIFT, id]
+    );
+
+    if (result.affectedRows === 0) {
+      console.log('Fournisseur not found');
+      res.status(404).send({ message: 'Fournisseur not found' });
+    } else {
+      console.log('Fournisseur updated successfully');
+      res.send({ message: 'Fournisseur updated successfully' });
+    }
+  } catch (error) {
+    console.error('Error updating fournisseur:', error);
+    res.status(500).send({ message: 'Error updating fournisseur' });
   }
 });
 
